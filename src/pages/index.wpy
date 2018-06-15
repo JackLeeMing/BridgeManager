@@ -11,6 +11,10 @@
     import wepyCanlendar from '../components/calendar'
 
     export default class Index extends wepy.page {
+
+        config = {
+          navigationBarTitleText: 'Calendar'
+        };
         components = {
             canlendar:wepyCanlendar
         };
