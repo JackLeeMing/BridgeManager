@@ -1,0 +1,13 @@
+{
+  "description": "桥梁日常养护管理",
+  "setting": {
+    "urlCheck": true,
+    "es6": false,
+    "postcss": false,
+    "minified": false
+  },
+  "compileType": "miniprogram",
+  "appid": "wxead0af6cc49b3966",
+  "projectname": "bridgemanager",
+  "miniprogramRoot": "./dist"
+}
