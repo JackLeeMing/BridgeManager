@@ -19,12 +19,22 @@
             canlendar:wepyCanlendar
         };
 
+        getData() {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve({data: 123});
+                }, 3000);
+            });
+        };
+
         async onLoad(){
             this.$broadcast("startRenderCalendar");//通知日历组件可以开始渲染
+            //let data = await this.getData();
+            //console.error(data);
         };
 
         data = {
-              //currentDate:'2018-06-15',
+              currentDate:'2018-06-15',
               startDate:'1999-01-01',
               endDate:'2019-10-01',
               hasIconList:[
