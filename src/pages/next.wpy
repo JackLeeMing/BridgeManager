@@ -238,7 +238,10 @@ export default class Index extends wepy.page {
     }
   }
   onLoad() {
-
+    wx.showLoading({
+      title: '加载中'
+    });
+    this.loadList();
   }
   onPullDownRefresh() {
     console.log(1)
