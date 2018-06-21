@@ -7,6 +7,17 @@
   justify-content: space-between;
   box-sizing: border-box;
 }
+.btn{
+  width: 60%;
+  border-radius: 5px;
+  margin: 20px auto;
+  padding-top: 2px;
+  font-size: 14px;
+  background-color: rgb(32, 158, 133);
+  color: white;
+  overflow: hidden;
+  height: 40px;
+}
 </style>
 
 <script>
@@ -17,14 +28,15 @@ import 'wepy-async-function'
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/next',
+
       'pages/index',
+      'pages/next',
       'pages/three'
     ],
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
-      navigationBarTitleText: 'WeChat',
+      navigationBarTitleText: '新闻',
       navigationBarTextStyle: 'black'
     }
   }
@@ -40,7 +52,7 @@ export default class extends wepy.app {
   }
 
   onLaunch() {
-    this.testAsync()
+
   }
 
   sleep (s) {

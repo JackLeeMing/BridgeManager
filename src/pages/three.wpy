@@ -78,7 +78,7 @@
           </block>
       </view>
       <!-- 加wx:if是为了让加载完后才显示button，不然文章还没加载完整个页面就一个孤零零的button太丑了 -->
-    <button class="btn" wx:if="{{!!detail.title_en}}" @tap="finish"> Back </button>
+    <button class="btn" wx:if="{{!!detail.title_en}}" @tap="finish"> 返回 🔙 </button>
   </view>
 </template>
 
@@ -86,9 +86,9 @@
 import wepy from 'wepy'
 import X2JS from '../utils/x2js.js'
 import Infomation from '../components/information'
-export default class Article extends wepy.page {
+export default class three extends wepy.page {
   config = {
-    navigationBarTitleText: 'News Lite'
+    navigationBarTitleText: '新闻详情'
   };
   components={
     information: Infomation
