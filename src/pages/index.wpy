@@ -83,11 +83,11 @@
       </view>
       <view class="line"></view>
       <view class="cards-area">
-        <repeat for="{{allDatas}}" >
-          <view @tap="tap({{item.id}})">
-           <card :title="item.title_en" :content="item.summary" :grade="item.grade_info" :words="item.length" :reviews="item.num_reviews" :thumbnail="item.thumbnail_urls[0]"/>
+        <repeat for="{{detail.objects}}" >
+          <view  wx:if="{{item.id}}" @tap="tap({{item.id}})">
+           <card :item="item" @childFn.user="itemFn"  />
           </view>
-          <view class="date" wx:if="{{index!==0&&item.date!==allDatas[index-1].date}}">{{item.date}}</view>
+          <view class="date" wx:if="{{index!==0&&item.date!==detail.objects[index-1].date}}">{{item.date}}</view>
         </repeat>
       </view>
       <text class="info" wx:if="{{info}}">{{info}}</text>
@@ -131,19 +131,26 @@ export default class Index extends wepy.page {
       wx.navigateTo({
         url: `/pages/three?id=${id}`  // 打开一个新的同路由页面，但指定不同的数据初始值
       })
+    },
+    itemFn(num, evt){
+      console.log('parent received emit event, number is: ' + num);
     }
   }
 
   async onLoad() {
+
+
     wx.showLoading({
       title: '加载中'
     });
-    await this.loadNewsList().then((data)=>{
+   this.loadNewsList().then((data)=>{
         this.detail.objects = this.detail.objects.concat(data);
         this.$apply();
         wx.hideLoading();
         console.error('datas',this.detail.objects);
     });
+
+    console.error(this.$parent.globalData.userInfo,'userinfo.');
   }
   onPullDownRefresh() {
     console.log(1)

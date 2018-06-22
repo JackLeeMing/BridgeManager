@@ -1,14 +1,18 @@
 <template>
+    <view>
+    <toast></toast>
     <canlendar
         :currentDate.sync="currentDate"
         :startDate.sync="startDate"
         :endDate.sync="endDate"
-        :hasIconList="hasIconList">
+        :hasIconList.sync="hasIconList">
     </canlendar>
+    </view>
 </template>
 <script>
     import wepy from 'wepy';
     import wepyCanlendar from '../components/calendar'
+    import Toast from 'wepy-com-toast'
 
     export default class next extends wepy.page {
 
@@ -16,7 +20,8 @@
           navigationBarTitleText: 'Calendar'
         };
         components = {
-            canlendar:wepyCanlendar
+            canlendar:wepyCanlendar,
+            toast:Toast
         };
 
         getData() {
@@ -67,12 +72,22 @@
                  //日历当前时间改变回调
                  console.error(date);
               },
-              calChangeSelectedDay:function (date, e) {
+              calChangeSelectedDay:function (has_icon,date, e) {
                 //点击日历选择天回调
-                console.error(date, e);
-                wx.navigateTo({
-                  url: `/pages/next?year=${date.year}&month=${date.month}&day=${date.day}`  // 打开一个新的同路由页面，但指定不同的数据初始值
-                })
+                if(has_icon){
+                  wx.navigateTo({
+                    url: `/pages/index?year=${date.year}&month=${date.month}&day=${date.day}`  // 打开一个新的同路由页面，但指定不同的数据初始值
+                  })
+                }else{
+                    let promise = this.$invoke('toast', 'show', {
+                        title: '无巡视记录',
+                    });
+
+                    promise.then((d) => {
+                        console.log('toast done');
+                    });
+                }
+
               }
             };
             // 声明组件之间的事件处理函数
@@ -81,16 +96,14 @@
         var self = this;
         return new Promise((resove,reject)=>{
           wx.request({
-            url: `https://www.shanbay.com/api/v2/news/articles/?ipp=20&page=${1}`,
+            url: `https://www.shanbay.com/api/v2/news/articles/?ipp=50&page=${1}`,
             success: (res) => {
               if (res.data.msg === 'SUCCESS') {
                 let new_data = res.data.data.objects;
                 let new_obj = {};
                 new_obj['date'] = [];
-                console.log(new_data);
                 new_data.forEach(ele => {
                   let date = ele.date;
-                  console.log(ele, date);
                   if(new_obj[date]){
                     new_obj[date].push(ele);
                   }else{

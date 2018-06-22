@@ -84,18 +84,18 @@
 </style>
 <template>
   <view class="card">
-    <text class="title" >{{title}}</text>
+    <text class="title" >{{item.title_en}}</text>
     <view class="content-area">
       <view class="left-area">
-        <text class="card-content" >{{content}}</text>
+        <text class="card-content" >{{item.summary}}</text>
         <view class="info-area">
-          <text class="grade">{{grade}}</text>
-          <text class="words">{{words}}词</text>
-          <text class="reviews">{{reviews}}</text>
+          <text class="grade">{{item.grade_info}}</text>
+          <text class="words" @tap="tap">{{item.length}}词</text>
+          <text class="reviews">{{item.num_reviews}}</text>
         </view>
       </view>
       <view class="right-area">
-        <image src='{{thumbnail}}' class="thumbnail" mode="aspectFill"/>
+        <image src='{{item.thumbnail_urls[0]}}' class="thumbnail" mode="aspectFill"/>
       </view>
     </view>
   </view>
@@ -106,12 +106,14 @@
 
   export default class Card extends wepy.component {
     props = {
-      title: String,
-      content: String,
-      grade: String,
-      words: Number,
-      reviews: Number,
-      thumbnail: String
+      item:Object,
+    };
+
+    methods={
+      tap(){
+        console.log('child is clicked ',this.item.length);
+        this.$emit('childFn', this.item.length);
+      }
     }
   }
 </script>

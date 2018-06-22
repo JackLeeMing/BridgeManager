@@ -137,16 +137,8 @@
                 }
 
                 console.error("click",dday);
-                if(dday && dday.hasIcon){
-                  this.$emit('calChangeSelectedDay',date,e);
-                }else{
-                  wx.showToast({
-                              title: '当天无巡检记录!',
-                              icon: 'warn',
-                              duration: 1000,
-                              mask:true
-                          })
-                }
+                let has_icon = dday && dday.hasIcon;
+                this.$emit('calChangeSelectedDay',has_icon,date,e);
             },
             // 递增、递减切换月份
             handleCalendar(type,e) {

@@ -29,8 +29,8 @@ export default class extends wepy.app {
   config = {
     pages: [
 
-      'pages/index',
       'pages/next',
+      'pages/index',
       'pages/three'
     ],
     window: {
@@ -39,20 +39,20 @@ export default class extends wepy.app {
       navigationBarTitleText: '新闻',
       navigationBarTextStyle: 'black'
     }
-  }
+  };
 
   globalData = {
     userInfo: null
-  }
+  };
 
   constructor () {
-    super()
+    super();
     this.use('requestfix');
     this.use('promisify');
   }
 
   onLaunch() {
-
+    this.getUserInfo();
   }
 
   sleep (s) {
@@ -64,18 +64,18 @@ export default class extends wepy.app {
   }
 
   async testAsync () {
-    const data = await this.sleep(3)
+    const data = await this.sleep(3);
     console.log(data)
   }
 
   getUserInfo(cb) {
-    const that = this
+    const that = this;
     if (this.globalData.userInfo) {
       return this.globalData.userInfo
     }
     wepy.getUserInfo({
       success (res) {
-        that.globalData.userInfo = res.userInfo
+        that.globalData.userInfo = res.userInfo;
         cb && cb(res.userInfo)
       }
     })
