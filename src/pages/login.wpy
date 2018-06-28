@@ -1,0 +1,40 @@
+<style lang="css">
+</style>
+<template>
+<view>
+  <toast></toast>
+  <login :username="name" componentId="login"></login>
+</view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import Toast from 'wepy-com-toast'
+import Login from '../components/login'
+export default class login extends wepy.page {
+  components = {
+    toast:Toast,
+    login: Login,
+  }
+  data = {
+    // 基础类型输入框配置
+      name: "ljk123",
+  }
+  methods = {
+    login(){
+
+    },
+  }
+  events = {
+  }
+  onLoad() {
+    wx.setNavigationBarTitle({
+      title:'用户登录',
+    });
+  }
+}
+</script>
+
+
+
+

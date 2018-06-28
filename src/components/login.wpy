@@ -1,0 +1,235 @@
+<style lang="css">
+@import '/zanui/panel.wxss';
+@import '/zanui/btn.wxss';
+.field__title--radius {
+  padding-bottom: 10px;
+}
+</style>
+
+<template>
+<block>
+<view class="container">
+  <view class="doc-title zan-hairline--bottom">桥梁巡检</view>
+    <form bindsubmit="formSubmit" bindreset="formReset">
+    <view class="zan-panel">
+      <name :options="base_name" :outValue="username" componentId="name"></name>
+      <pwd :options="base_pwd" componentId="pwd"></pwd>
+      <view class="zan-btns">
+        <button
+          class="{{login_btn}}"
+          formType="submit">登 录</button>
+      </view>
+    </view>
+  </form>
+
+
+  <view class="zan-panel"  wx:if="{{form}}">
+    <zanField1 :options="base_name" :outValue="username" componentId="zanField1"></zanField1>
+    <zanField2 :options="base_pwd" :outValue="value" componentId="zanField2"></zanField2>
+  </view>
+
+  <view class="zan-btns"  wx:if="{{form}}">
+    <button
+      class="zan-btn zan-btn--primary"
+      bindtap="login">登 录</button>
+  </view>
+</view>
+<toast/>
+<tips/>
+</block>
+</template>
+
+<script>
+import wepy from 'wepy'
+import Toast from 'wepy-com-toast'
+import zanField from './zan-field'
+import zanToptips from './zan-toptips'
+export default class Login extends wepy.component {
+    props = {
+      username:{
+        type:String,
+        defult:"",
+        twoWay: true
+      },
+
+    };
+  components = {
+     tips:zanToptips,
+    toast:Toast,
+    zanField1: zanField,
+    zanField2: zanField,
+    name: zanField,
+    pwd: zanField,
+  }
+  data = {
+    // 基础类型输入框配置
+    base_name: {
+      title: '账号:',
+      placeholder: '请输入用户名',
+    },
+    base_pwd: {
+      error: false,
+      title: '密码:',
+      value:'123456',
+      inputType: 'password',
+      placeholder: '请输入密码'
+    },
+    form:false,
+    login_btn:'zan-btn zan-btn--primary',
+  }
+  methods = {
+    onAreaChange(e) {
+      this.areaIndex = e.detail.value
+      this.$apply()
+    },
+
+    clearInput() {
+      this.$invoke('zanField1', 'clear')
+      this.$invoke('zanField2', 'clear')
+    },
+
+    clearTextarea() {
+      this.$invoke('zanField4', 'clear')
+    },
+    login(){
+
+    },
+
+    /*
+
+setTimeout(() => {
+this.login_btn = 'zan-btn zan-btn--primary';
+this.$apply();
+wx.showToast({
+title: '登录成功',
+icon: 'succes',
+duration: 1000,
+mask:true,
+complete:()=>{
+    setTimeout(() => {
+      self.$emit('loginSuccess','akakakakakakakakakak',event);
+    },1000);
+}
+});
+}, 3000);
+    */
+
+    formSubmit(event) {
+      let name = event.detail.value.name;
+      let pwd = event.detail.value.pwd;
+      console.log(event);
+      let self = this;
+      if(pwd && name){
+        this.login_btn = 'zan-btn zan-btn--primary zan-btn--loading';
+        this.$apply();
+
+        this.userLogin(pwd, name).then((data)=>{
+          if(data.status){
+              wx.showToast({
+                title: '登录成功',
+                icon: 'succes',
+                duration: 1000,
+                mask:true
+              });
+              let ak = data.data.ak;
+              wx.setStorage({key:"user",data:data.data});
+              wx.setStorage({key:"ak",data:data.data.ak});
+              self.$emit('loginSuccess',ak,event);
+          }else{
+            let msg = data.msg;
+            if(!msg){
+              msg = "登录失败!";
+            }
+           self.showTopTips(msg);
+          }
+        this.login_btn = 'zan-btn zan-btn--primary';
+        this.$apply();
+        });
+      }else{
+         self.showTopTips("用户名或密码不能为空!");
+      }
+    },
+    formReset(event) {
+      console.log('[zan:field:reset]', event)
+    }
+  }
+
+//登录方法
+  userLogin(password, username){
+    var self = this;
+    return new Promise((resove,reject)=>{
+      wx.request({
+        url: `http://t-ljk.thunics.com/m/login`,
+        method:'POST',
+        header:{
+          'content-type':'application/x-www-form-urlencoded'
+          },
+        dataType:'json',
+        data:{
+          'pwd':password,
+          'name':username,
+        },
+        success: (res) => {
+          if(res.data.status){
+            resove({status:true, data:res.data, msg:'登录成功!'});
+          }else{
+            resove({status:false, msg:res.data.msg});
+          }
+        },
+        fail:(err)=>{
+          resove({status:false, msg:'登录失败，服务器异常!'});
+        }
+      });
+    });
+  }
+
+  //使用 wepy的方式 当然还可以使用 asyc和 await的方式
+  loginUseWepy(){
+    return wepy.request({
+        url: `http://t-ljk.thunics.com/m/login`,
+        method:'POST',
+        header:{
+          'content-type':'application/x-www-form-urlencoded'
+          },
+        dataType:'json',
+        data:{
+          'pwd':password,
+          'name':username,
+        }
+      });
+  }
+
+    //显示提示条
+    showTopTips(content) {
+      this.$invoke('tips', 'showZanTopTips', { content: content, options: 2000 })
+    }
+
+  events = {
+    zanFieldChange(e) {
+      const { componentId, detail } = e
+
+      console.log('[zan:field:change]', componentId, detail)
+    },
+
+    zanFieldFocus(e) {
+      const { componentId, detail } = e
+
+      console.log('[zan:field:focus]', componentId, detail)
+    },
+
+    zanFieldBlur(e) {
+      const { componentId, detail } = e
+
+      console.log('[zan:field:blur]', componentId, detail)
+    }
+  }
+
+  onLoad() {
+    console.log(this.name);
+  }
+}
+</script>
+
+
+
+
