@@ -2,21 +2,25 @@
 @import '/zanui/panel.wxss';
 @import '/zanui/cell.wxss';
 @import '/zanui/icon.wxss';
+@import '/zanui/btn.wxss';
 </style>
 <template>
-  <view class="container">
+<view class="container">
   <view class="zan-panel">
     <view class="zan-cell">
-      <view class="zan-cell__bd">多行列表</view>
-      <view class="zan-cell__ft">详细信息</view>
+      <view class="zan-cell__bd">配置一</view>
+      <view class="zan-cell__ft">
+         <button class="zan-btn zan-btn--mini zan-btn--primary">下载</button>
+      </view>
     </view>
     <view class="zan-cell">
-      <view class="zan-cell__bd">多行列表</view>
-      <view class="zan-cell__ft">详细信息</view>
+      <view class="zan-cell__bd">配置二</view>
+      <view class="zan-cell__ft">
+         <button class="zan-btn zan-btn--mini zan-btn--danger">重试</button>
+      </view>
     </view>
     <view class="zan-cell">
-      <view class="zan-cell__bd">多行列表</view>
-      <view class="zan-cell__ft">详细信息</view>
+      <button class="zan-btn zan-btn--small zan-btn--primary zan-cell__bd" @tap="tap()">完成下载</button>
     </view>
   </view>
   </view>
@@ -28,12 +32,11 @@
       grouplist: {},
       index: {}
     }
-
     components = {
-
     }
     methods = {
       tap () {
+        this.$emit('downloadSuccess');
       }
     }
   }

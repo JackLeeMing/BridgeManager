@@ -73,17 +73,8 @@
 </style>
 <template>
   <block>
+ <download wx:if="{{!haveDownload}}"/>
   <view class="container" wx:if="{{haveLogin}}">
-     <view class="swiperarea">
-        <swiper indicator-dots="true" indicator-color="#fff" class='swiper' autoplay>
-          <repeat for="{{swiperObjects}}">
-            <swiper-item class="swiper-item">
-              <text class="title_en">{{item.title_en}}</text>
-              <image src="{{item.thumbnail_urls[0]}}" class="slide-image" mode='widthFix' @tap="tap({{item.id}})"/>
-            </swiper-item>
-          </repeat>
-        </swiper>
-      </view>
       <view class="line"></view>
       <view class="cards-area">
         <repeat for="{{detail.objects}}" >
@@ -96,7 +87,7 @@
       <text class="info" wx:if="{{info}}">{{info}}</text>
       <image wx:else class="info loading" src="../assets/loading.gif"/>
   </view>
-  <login wx:else :username="name" componentId="login"></login>
+  <login wx:if="{{!haveLogin}}" :username="name" componentId="login"></login>
   </block>
 </template>
 
@@ -105,6 +96,7 @@ import wepy from 'wepy';
 import Card from '../components/card';
 import Login from '../components/login';
 import testMixin from '../mixins/test';
+import Download from '../components/download'
 export default class Index extends wepy.page {
   mixins = [testMixin]
   config = {
@@ -112,6 +104,7 @@ export default class Index extends wepy.page {
     enablePullDownRefresh: true,
   }
   components = {
+    download:Download,
     card: Card,
     login:Login
   }
@@ -119,6 +112,7 @@ export default class Index extends wepy.page {
     name: "admin",
     ak:'',
     haveLogin:false,
+    haveDownload:false,
     detail: {
       objects: []
     },
@@ -161,10 +155,11 @@ export default class Index extends wepy.page {
       this.haveLogin = true;
       this.ak = ak;
       this.$apply();//需注意的是，在异步函数中更新数据的时候，必须手动调用$apply方法，才会触发脏数据检查流程的运行
-      if(ak){
-        this.loadData();
-      }
     },
+    downloadSuccess(){
+      this.haveDownload = true;
+      this.loadData();
+    }
   }
 
   refresh(){
@@ -178,13 +173,13 @@ export default class Index extends wepy.page {
     });
   }
 
-
-
   async onLoad() {
     let value = wx.getStorageSync('ak');
     if(value){
       this.haveLogin = true
-      this.loadData();
+      if(this.haveDownload){
+         this.loadData();
+      }
     }else{
       this.haveLogin = false;
     }
@@ -206,7 +201,7 @@ export default class Index extends wepy.page {
 
   //下拉刷新
   onPullDownRefresh() {
-    if(this.haveLogin){
+    if(this.haveLogin && this.haveDownload){
       this.refresh();
     }else{
       wx.stopPullDownRefresh();
@@ -214,8 +209,7 @@ export default class Index extends wepy.page {
   }
 
   onReachBottom() {
-
-    if(!this.haveLogin){
+    if(!this.haveLogin || !this.haveDownload){
       return;
     }
     this.currentPage++
