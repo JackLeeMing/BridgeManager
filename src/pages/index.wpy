@@ -65,12 +65,15 @@
   &.loading{
     width: 70rpx;
     height: 70rpx;
+    margin: 0 auto;
+    display:-webkit-flex;
   }
 }
 
 </style>
 <template>
-  <view class="container">
+  <block>
+  <view class="container" wx:if="{{haveLogin}}">
      <view class="swiperarea">
         <swiper indicator-dots="true" indicator-color="#fff" class='swiper' autoplay>
           <repeat for="{{swiperObjects}}">
@@ -93,23 +96,29 @@
       <text class="info" wx:if="{{info}}">{{info}}</text>
       <image wx:else class="info loading" src="../assets/loading.gif"/>
   </view>
+  <login wx:else :username="name" componentId="login"></login>
+  </block>
 </template>
 
 <script>
-import wepy from 'wepy'
-import Card from '../components/card'
-
+import wepy from 'wepy';
+import Card from '../components/card';
+import Login from '../components/login';
+import testMixin from '../mixins/test';
 export default class Index extends wepy.page {
+  mixins = [testMixin]
   config = {
     navigationBarTitleText: '英语新闻',
-    window: {
-      enablePullDownRefresh: true
-    }
+    enablePullDownRefresh: true,
   }
   components = {
-    card: Card
+    card: Card,
+    login:Login
   }
   data = {
+    name: "admin",
+    ak:'',
+    haveLogin:false,
     detail: {
       objects: []
     },
@@ -128,36 +137,87 @@ export default class Index extends wepy.page {
   }
   methods={
     tap(id) {
-      wx.navigateTo({
-        url: `/pages/three?id=${id}`  // 打开一个新的同路由页面，但指定不同的数据初始值
-      })
+      var self = this;
+      wx.getNetworkType({
+        success:( networkType)=>{
+            console.log( networkType);
+            wx.navigateTo({
+              url: `/pages/three?id=${id}`  // 打开一个新的同路由页面，但指定不同的数据初始值
+            });
+        },
+        fail:()=>{
+
+        }
+      });
     },
     itemFn(num, evt){
       console.log('parent received emit event, number is: ' + num);
-    }
+    },
   }
 
+  events={
+    loginSuccess(ak, event){
+      console.log(ak);
+      this.haveLogin = true;
+      this.ak = ak;
+      this.$apply();//需注意的是，在异步函数中更新数据的时候，必须手动调用$apply方法，才会触发脏数据检查流程的运行
+      if(ak){
+        this.loadData();
+      }
+    },
+  }
+
+  refresh(){
+    console.error('refresh');
+       this.loadNewsList(1).then((data)=>{
+         wx.hideNavigationBarLoading();
+        this.detail.objects = this.detail.objects.concat(data);
+        this.currentPage = 1;
+        this.$apply();
+        wx.stopPullDownRefresh();
+    });
+  }
+
+
+
   async onLoad() {
+    let value = wx.getStorageSync('ak');
+    if(value){
+      this.haveLogin = true
+      this.loadData();
+    }else{
+      this.haveLogin = false;
+    }
+    console.log(value);
+  }
 
-
+  loadData(){
     wx.showLoading({
       title: '加载中'
     });
-   this.loadNewsList().then((data)=>{
+   this.loadNewsList(1).then((data)=>{
+        wx.hideNavigationBarLoading()
         this.detail.objects = this.detail.objects.concat(data);
         this.$apply();
         wx.hideLoading();
         console.error('datas',this.detail.objects);
     });
-
-    console.error(this.$parent.globalData.userInfo,'userinfo.');
   }
+
+  //下拉刷新
   onPullDownRefresh() {
-    console.log(1)
-    wx.stopPullDownRefresh()
+    if(this.haveLogin){
+      this.refresh();
+    }else{
+      wx.stopPullDownRefresh();
+    }
   }
 
   onReachBottom() {
+
+    if(!this.haveLogin){
+      return;
+    }
     this.currentPage++
     if (this.currentPage >= 10) { // 最多只能加载10页
       this.isLoadingMore = false
@@ -166,11 +226,11 @@ export default class Index extends wepy.page {
       return
     }
     this.isLoadingMore = true
-    this.loadNewsList().then((data)=>{
+    this.loadNewsList(this.currentPage).then((data)=>{
+        wx.hideNavigationBarLoading();
         let lastList = this.detail.objects;
         let newList = lastList.concat(data);
         this.detail.objects = newList;
-        //this.setData({detail:{objects:newList}});
         this.$apply();
         console.error(data);
     });
@@ -183,11 +243,12 @@ export default class Index extends wepy.page {
     }
   }
 
-loadNewsList() {
+loadNewsList(page) {
     var self = this;
+    wx.showNavigationBarLoading();
     return new Promise((resove,reject)=>{
       wx.request({
-        url: `https://www.shanbay.com/api/v2/news/articles/?ipp=10&page=${self.currentPage}`,
+        url: `https://www.shanbay.com/api/v2/news/articles/?ipp=10&page=${page}`,
         success: (res) => {
           if (res.data.msg === 'SUCCESS') {
             let new_data = res.data.data.objects;
